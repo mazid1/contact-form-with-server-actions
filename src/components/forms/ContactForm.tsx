@@ -1,9 +1,9 @@
 import React from "react";
 import { Label } from "../ui/label";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { sendEmail } from "@/actions/sendEmail";
+import SubmitButton from "./SubmitButton";
 
 function ContactForm() {
   return (
@@ -30,7 +30,7 @@ function ContactForm() {
           className="input"
         />
       </div>
-      <Button type="submit">Submit</Button>
+      <SubmitButton type="submit">Submit</SubmitButton>
     </form>
   );
 }
