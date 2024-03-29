@@ -4,6 +4,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { sendEmail } from "@/actions/sendEmail";
+import { type SendEmailResponse } from "@/actions/validators/ContactFormValidator";
 import SubmitButton from "./SubmitButton";
 import { toast } from "../ui/use-toast";
 import { useFormState } from "react-dom";
@@ -11,7 +12,7 @@ import { TypographySmall } from "../ui/typography";
 import { isObject } from "@/lib/isObject";
 import clsx from "clsx";
 
-const initialState = {
+const initialState: SendEmailResponse = {
   success: null,
   error: null,
   errorType: null,

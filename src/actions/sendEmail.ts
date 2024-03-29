@@ -1,6 +1,11 @@
 "use server";
 import { createTransport } from "nodemailer";
-import { z } from "zod";
+import {
+  SendEmailResponse,
+  ContactFormSchema,
+  ContactFormFlattenedErrors,
+  ContactFormErrorType,
+} from "./validators/ContactFormValidator";
 
 const RECEIVING_EMAIL = process.env.RECEIVING_EMAIL as string;
 const SENDING_EMAIL = process.env.SENDING_EMAIL as string;
@@ -16,26 +21,6 @@ const transporter = createTransport({
   },
 });
 
-const FormSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please provide a valid email address" }),
-  message: z.string().min(10, { message: "Please elaborate your message" }),
-});
-
-type FlattenedErrors = z.inferFlattenedErrors<typeof FormSchema>;
-
-enum ErrorType {
-  Internal = "Internal",
-  ZodFieldErrors = "ZodFieldErrors",
-}
-
-type SendEmailResponse = {
-  success: boolean | null; // Whether the email was sent successfully
-  error?: string | FlattenedErrors["fieldErrors"] | null; // If success is false, this will be the error object or string
-  errorType?: ErrorType | null; // If success is false, this will be the type of error
-  message?: string | null; // Message (success/failure) should be displayed to the user
-};
-
 export async function sendEmail(
   prevState: SendEmailResponse,
   formData: FormData
@@ -44,14 +29,15 @@ export async function sendEmail(
   const email = formData.get("email") as string;
   const message = formData.get("message") as string;
 
-  const validatedData = FormSchema.safeParse({ name, email, message });
+  const validatedData = ContactFormSchema.safeParse({ name, email, message });
 
   if (!validatedData.success) {
-    const flattenedErrors: FlattenedErrors = validatedData.error.flatten();
+    const flattenedErrors: ContactFormFlattenedErrors =
+      validatedData.error.flatten();
     return {
       success: false,
       error: flattenedErrors.fieldErrors,
-      errorType: ErrorType.ZodFieldErrors,
+      errorType: ContactFormErrorType.ZodFieldErrors,
     };
   }
 
@@ -78,7 +64,7 @@ export async function sendEmail(
     return {
       success: false,
       error: "Something went wrong!",
-      errorType: ErrorType.Internal,
+      errorType: ContactFormErrorType.Internal,
       message: "Something went wrong!",
     };
   }
